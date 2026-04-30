@@ -271,10 +271,7 @@ SE_Mutex Mixer::mutex;
 void Mixer::requestSound(short *output, int frames) {
 #ifdef ENABLE_AUDIO
     const int channels_out = 2;
-
-    // reuse buffer
-    thread_local std::vector<float> mixBuffer;
-    mixBuffer.assign(frames * channels_out, 0.0f);
+    std::vector<float> mixBuffer(frames * channels_out, 0.0f);
 
     Mixer::mutex.lock();
 
@@ -287,8 +284,7 @@ void Mixer::requestSound(short *output, int frames) {
         const float step = (float)s->rate * pitch / (float)Mixer::rate;
         int maxFramesNeeded = (int)(frames * step) + 2;
 
-        thread_local std::vector<float> decodeBuffer;
-        decodeBuffer.assign(maxFramesNeeded * s->channels, 0.0f);
+        std::vector<float> decodeBuffer(maxFramesNeeded * s->channels, 0.0f);
 
         int decoded = s->read(decodeBuffer.data(), maxFramesNeeded);
         if (decoded <= 0) {
@@ -343,6 +339,7 @@ void Mixer::requestSound(short *output, int frames) {
     }
 #endif
 }
+
 void Mixer::cleanupAudio() {
 #ifdef ENABLE_AUDIO
     std::vector<SoundStream *> streams;
